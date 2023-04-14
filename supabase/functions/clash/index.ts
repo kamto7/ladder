@@ -18,11 +18,16 @@ serve(async (req) => {
     return new Response("ok", { headers: corsHeaders });
   }
 
-  const data: Record<string, unknown[]> = {
+  const data: {
+    proxies: unknown[];
+    "proxy-groups": unknown[];
+    rules: string[];
+    "rule-providers": Record<string, unknown>;
+  } = {
     proxies: [],
     "proxy-groups": [],
     rules: [],
-    "rule-providers": [],
+    "rule-providers": {},
   };
 
   const [{ data: proxies }, { data: rules }, { data: ruleProviders }] =
@@ -43,11 +48,13 @@ serve(async (req) => {
   });
 
   ruleProviders?.forEach((provider) => {
-    data["rule-providers"].push(provider.metadata);
+    data["rule-providers"][provider.id] = provider.metadata;
   });
 
   rules?.forEach((rule) => {
-    data.rules.push(`${rule.keyword},${rule.value ? `${rule.value},` : ''}${rule.policy}`);
+    data.rules.push(
+      `${rule.keyword},${rule.value ? `${rule.value},` : ""}${rule.policy}`,
+    );
   });
 
   return new Response(
