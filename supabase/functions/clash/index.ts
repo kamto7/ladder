@@ -18,7 +18,7 @@ serve(async (req) => {
     return new Response("ok", { headers: corsHeaders });
   }
 
-  const data: Record<string, any> = {
+  const data: Record<string, unknown[]> = {
     proxies: [],
     "proxy-groups": [],
     rules: [],
