@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# When any command fails to execute, immediately stop the script execution.
-set -e
-
 read -p "Please input DOMAIN: " DOMAIN
 read -p "Please input CF_Email: " CF_Email
 read -p "Please input CF_Key: " CF_Key
@@ -36,7 +33,7 @@ fi
 CERT_FILE="$HOME/.acme.sh/${DOMAIN}_ecc/${DOMAIN}.cer"
 KEY_FILE="$HOME/.acme.sh/${DOMAIN}_ecc/${DOMAIN}.key"
 
-if [ ! -d $CERT_FILE ]; then
+if [ ! -d "$CERT_FILE" ]; then
     $HOME/.acme.sh/acme.sh --issue --dns dns_cf -d $DOMAIN
 fi
 
