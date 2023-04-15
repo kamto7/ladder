@@ -89,7 +89,7 @@ After=network.target
 [Service]
 Type=simple
 PIDFile=/usr/local/trojan/trojan.pid
-ExecStart=/usr/local/trojan/trojan -c "/usr/local/trojan/server.conf"
+ExecStart=/usr/local/trojan/trojan -c "/usr/local/trojan/server.json"
 ExecReload=
 ExecStop=/usr/local/trojan/trojan
 PrivateTmp=true
@@ -101,7 +101,6 @@ EOF'
 sudo chmod +x /lib/systemd/system/trojan.service
 sudo systemctl start trojan.service
 sudo systemctl enable trojan.service
-
 
 METADATA=$(
     cat <<EOL
