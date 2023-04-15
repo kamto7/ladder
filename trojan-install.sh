@@ -45,10 +45,10 @@ ZONE_ID=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones?name=${BASE
 RECORD_ID=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records?type=A&name=$SUBDOMAIN" -H "X-Auth-Email: $CF_Email" -H "X-Auth-Key: $CF_Key" -H "Content-Type: application/json" | jq -r '.result[0].id')
 if [ "$RECORD_ID" == "null" ]; then
   # Create new A record
-  curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records" -H "X-Auth-Email: $CF_Email" -H "X-Auth-Key: $CF_Key" -H "Content-Type: application/json" --data "{\"type\":\"A\",\"name\":\"$DOMAIN\",\"content\":\"$LOCAL_IP\",\"ttl\":120,\"proxied\":false}"
+  curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records" -H "X-Auth-Email: $CF_Email" -H "X-Auth-Key: $CF_Key" -H "Content-Type: application/json" --data "{\"type\":\"A\",\"name\":\"$SUBDOMAIN\",\"content\":\"$LOCAL_IP\",\"ttl\":120,\"proxied\":false}"
 else
   # Update existing A record
-  curl -s -X PUT "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records/$RECORD_ID" -H "X-Auth-Email: $CF_Email" -H "X-Auth-Key: $CF_Key" -H "Content-Type: application/json" --data "{\"type\":\"A\",\"name\":\"$DOMAIN\",\"content\":\"$LOCAL_IP\",\"ttl\":120,\"proxied\":false}"
+  curl -s -X PUT "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records/$RECORD_ID" -H "X-Auth-Email: $CF_Email" -H "X-Auth-Key: $CF_Key" -H "Content-Type: application/json" --data "{\"type\":\"A\",\"name\":\"$SUBDOMAIN\",\"content\":\"$LOCAL_IP\",\"ttl\":120,\"proxied\":false}"
 fi
 
 RANDOM_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c8)
