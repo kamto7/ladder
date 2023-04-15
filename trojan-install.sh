@@ -1,10 +1,10 @@
 #!/bin/bash
 
-read -p "请输入 DOMAIN: " DOMAIN
-read -p "请输入 CF_Email: " CF_Email
-read -p "请输入 CF_Key: " CF_Key
-read -p "请输入 SUPABASE_URL: " SUPABASE_URL
-read -p "请输入 SUPABASE_SERVICE_ROLE_KEY: " SUPABASE_SERVICE_ROLE_KEY
+read -p "Please input DOMAIN: " DOMAIN
+read -p "Please input CF_Email: " CF_Email
+read -p "Please input CF_Key: " CF_Key
+read -p "Please input SUPABASE_URL: " SUPABASE_URL
+read -p "Please input SUPABASE_SERVICE_ROLE_KEY: " SUPABASE_SERVICE_ROLE_KEY
 
 sudo apt-get update
 sudo apt-get install -y jq
