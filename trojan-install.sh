@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# When any command fails to execute, immediately stop the script execution.
+set -e
+
 read -p "Please input DOMAIN: " DOMAIN
 read -p "Please input CF_Email: " CF_Email
 read -p "Please input CF_Key: " CF_Key
@@ -28,11 +31,14 @@ if [ ! -d "$HOME/.acme.sh" ]; then
     export CF_Key=$CF_Key
     export CF_Email=$CF_Email
     curl https://get.acme.sh | sh -s email=$CF_Email
-    $HOME/.acme.sh/acme.sh --issue --dns dns_cf -d $DOMAIN
 fi
 
 CERT_FILE="$HOME/.acme.sh/${DOMAIN}_ecc/${DOMAIN}.cer"
 KEY_FILE="$HOME/.acme.sh/${DOMAIN}_ecc/${DOMAIN}.key"
+
+if [ ! -d $CERT_FILE ]; then
+    $HOME/.acme.sh/acme.sh --issue --dns dns_cf -d $DOMAIN
+fi
 
 LOCAL_IP=$(curl -s https://ipinfo.io/ip)
 
@@ -48,7 +54,7 @@ if [ ! -d "$HOME/trojan" ]; then
     fi
     LATEST_RELEASE=$(curl -s "https://api.github.com/repos/p4gefau1t/trojan-go/releases/latest" | jq -r '.tag_name')
     wget https://github.com/p4gefau1t/trojan-go/releases/download/${LATEST_RELEASE}/trojan-go-linux-amd64.zip
-    sudo unzip trojan-go-linux-amd64.zip -d $HOME/trojan
+    unzip trojan-go-linux-amd64.zip -d $HOME/trojan
     rm trojan-go-linux-amd64.zip
 fi
 
@@ -70,7 +76,7 @@ cat >$HOME/trojan/server.json <<EOL
 }
 EOL
 
-cat >/lib/systemd/system/trojan.service <<-EOF
+sudo cat >/lib/systemd/system/trojan.service <<-EOF
 [Unit]  
 Description=trojan  
 After=network.target  
