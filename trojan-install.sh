@@ -88,7 +88,7 @@ After=network.target
 
 [Service]
 Type=simple
-ExecStart=/usr/local/trojan/trojan-go -c /usr/local/trojan/server.json
+ExecStart=/usr/local/trojan/trojan-go -config /usr/local/trojan/server.json
 KillMode=process
 Restart=on-failure
 RestartSec=5s
