@@ -63,23 +63,23 @@ if [ ! -d "/usr/local/trojan" ]; then
     rm trojan-go-linux-amd64.zip
 fi
 
-sudo /bin/bash -c 'cat >/usr/local/trojan/server.json <<EOL
+sudo bash -c "cat > /usr/local/trojan/server.json <<EOL
 {
-    "run_type": "server",
-    "local_addr": "0.0.0.0",
-    "local_port": 443,
-    "remote_addr": "127.0.0.1",
-    "remote_port": 80,
-    "password": [
-        "${RANDOM_PASSWORD}"
+    \"run_type\": \"server\",
+    \"local_addr\": \"0.0.0.0\",
+    \"local_port\": 443,
+    \"remote_addr\": \"127.0.0.1\",
+    \"remote_port\": 80,
+    \"password\": [
+        \"${RANDOM_PASSWORD}\"
     ],
-    "ssl": {
-        "cert": "${CERT_FILE}",
-        "key": "${KEY_FILE}",
-        "fallback_port": 2000
+    \"ssl\": {
+        \"cert\": \"${CERT_FILE}\",
+        \"key\": \"${KEY_FILE}\",
+        \"fallback_port\": 2000
     }
 }
-EOL'
+EOL"
 
 sudo /bin/bash -c 'cat >/lib/systemd/system/trojan.service <<-EOF
 [Unit]
