@@ -83,16 +83,15 @@ EOL'
 
 sudo /bin/bash -c 'cat >/lib/systemd/system/trojan.service <<-EOF
 [Unit]
-Description=trojan
+Description=Trojan
 After=network.target
 
 [Service]
 Type=simple
-PIDFile=/usr/local/trojan/trojan.pid
-ExecStart=/usr/local/trojan/trojan -c "/usr/local/trojan/server.json"
-ExecReload=
-ExecStop=/usr/local/trojan/trojan
-PrivateTmp=true
+ExecStart=/usr/local/trojan/trojan-go -c /usr/local/trojan/server.json
+KillMode=process
+Restart=on-failure
+RestartSec=5s
 
 [Install]
 WantedBy=multi-user.target
