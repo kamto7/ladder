@@ -13,8 +13,15 @@ if ! command -v nginx &>/dev/null; then
     sudo apt-get install -y nginx
 fi
 
-echo -e "server {\n    listen 2000;\n    return 400;\n}" | sudo tee /etc/nginx/conf.d/listen_2000.conf
+NGINX_HTML_DIR="/var/www/html"
+RELEASE_INFO=$(curl -s "https://api.github.com/repos/kamto7/coming-soon/releases/latest")
+BUILD_ZIP_URL=$(echo "$RELEASE_INFO" | jq -r '.assets[] | select(.name=="build.zip").browser_download_url')
+curl -s -L -o build.zip "$BUILD_ZIP_URL"
+rm -rf "${NGINX_HTML_DIR:?}/*"
+unzip build.zip -d "$NGINX_HTML_DIR"
+rm build.zip
 
+echo -e "server {\n    listen 2000;\n    return 400;\n}" | sudo tee /etc/nginx/conf.d/listen_2000.conf
 sudo systemctl restart nginx
 
 if [ ! -d "$HOME/.acme.sh" ]; then
