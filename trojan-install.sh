@@ -40,8 +40,9 @@ fi
 
 LOCAL_IP=$(curl -s https://ipinfo.io/ip)
 BASE_DOMAIN=$(echo "$DOMAIN" | awk -F. '{print $(NF-1)"."$NF}')
+SUBDOMAIN=$(echo "$DOMAIN" | cut -d '.' -f 1)
 ZONE_ID=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones?name=${BASE_DOMAIN}" -H "X-Auth-Email: $CF_Email" -H "X-Auth-Key: $CF_Key" -H "Content-Type: application/json" | jq -r '.result[0].id')
-RECORD_ID=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records?type=A&name=$BASE_URL" -H "X-Auth-Email: $CF_Email" -H "X-Auth-Key: $CF_Key" -H "Content-Type: application/json" | jq -r '.result[0].id')
+RECORD_ID=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records?type=A&name=$SUBDOMAIN" -H "X-Auth-Email: $CF_Email" -H "X-Auth-Key: $CF_Key" -H "Content-Type: application/json" | jq -r '.result[0].id')
 if [ "$RECORD_ID" == "null" ]; then
   # Create new A record
   curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records" -H "X-Auth-Email: $CF_Email" -H "X-Auth-Key: $CF_Key" -H "Content-Type: application/json" --data "{\"type\":\"A\",\"name\":\"$DOMAIN\",\"content\":\"$LOCAL_IP\",\"ttl\":120,\"proxied\":false}"
@@ -52,17 +53,17 @@ fi
 
 RANDOM_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c8)
 
-if [ ! -d "$HOME/trojan" ]; then
+if [ ! -d "/usr/local/trojan" ]; then
     if ! command -v unzip &>/dev/null; then
         sudo apt-get install -y unzip
     fi
     LATEST_RELEASE=$(curl -s "https://api.github.com/repos/p4gefau1t/trojan-go/releases/latest" | jq -r '.tag_name')
     wget https://github.com/p4gefau1t/trojan-go/releases/download/${LATEST_RELEASE}/trojan-go-linux-amd64.zip
-    unzip trojan-go-linux-amd64.zip -d $HOME/trojan
+    sudo unzip trojan-go-linux-amd64.zip -d /usr/local/trojan
     rm trojan-go-linux-amd64.zip
 fi
 
-cat >$HOME/trojan/server.json <<EOL
+sudo /bin/bash -c 'cat >/usr/local/trojan/server.json <<EOL
 {
     "run_type": "server",
     "local_addr": "0.0.0.0",
@@ -78,7 +79,7 @@ cat >$HOME/trojan/server.json <<EOL
         "fallback_port": 2000
     }
 }
-EOL
+EOL'
 
 sudo /bin/bash -c 'cat >/lib/systemd/system/trojan.service <<-EOF
 [Unit]
@@ -87,10 +88,10 @@ After=network.target
 
 [Service]
 Type=simple
-PIDFile=$HOME/trojan/trojan.pid
-ExecStart=$HOME/trojan -c "$HOME/trojan/server.conf"
+PIDFile=/usr/local/trojan/trojan.pid
+ExecStart=/usr/local/trojan/trojan -c "/usr/local/trojan/server.conf"
 ExecReload=
-ExecStop=$HOME/trojan/trojan
+ExecStop=/usr/local/trojan/trojan
 PrivateTmp=true
 
 [Install]
@@ -101,7 +102,6 @@ sudo chmod +x /lib/systemd/system/trojan.service
 sudo systemctl start trojan.service
 sudo systemctl enable trojan.service
 
-SUBDOMAIN=$(echo "$DOMAIN" | cut -d '.' -f 1)
 
 METADATA=$(
     cat <<EOL
