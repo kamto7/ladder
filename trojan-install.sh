@@ -30,16 +30,17 @@ if [ ! -d "$HOME/.acme.sh" ]; then
     curl https://get.acme.sh | sh -s email=$CF_Email
 fi
 
+ECC_DIR="$HOME/.acme.sh/${DOMAIN}_ecc"
 CERT_FILE="$HOME/.acme.sh/${DOMAIN}_ecc/${DOMAIN}.cer"
 KEY_FILE="$HOME/.acme.sh/${DOMAIN}_ecc/${DOMAIN}.key"
 
-if [ ! -d "$CERT_FILE" ]; then
+if [ ! -d "$ECC_DIR" ]; then
     $HOME/.acme.sh/acme.sh --issue --dns dns_cf -d $DOMAIN
 fi
 
 LOCAL_IP=$(curl -s https://ipinfo.io/ip)
-
-ZONE_ID=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones?name=${DOMAIN%.*.*}" -H "X-Auth-Email: $CF_Email" -H "X-Auth-Key: $CF_Key" -H "Content-Type: application/json" | jq -r '.result[0].id')
+BASE_DOMAIN=$(echo "$DOMAIN" | awk -F. '{print $(NF-1)"."$NF}')
+ZONE_ID=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones?name=${BASE_DOMAIN}" -H "X-Auth-Email: $CF_Email" -H "X-Auth-Key: $CF_Key" -H "Content-Type: application/json" | jq -r '.result[0].id')
 RECORD_ID=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records?type=A&name=$DOMAIN" -H "X-Auth-Email: $CF_Email" -H "X-Auth-Key: $CF_Key" -H "Content-Type: application/json" | jq -r '.result[0].id')
 curl -s -X PUT "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records/$RECORD_ID" -H "X-Auth-Email: $CF_Email" -H "X-Auth-Key: $CF_Key" -H "Content-Type: application/json" --data "{\"type\":\"A\",\"name\":\"$DOMAIN\",\"content\":\"$LOCAL_IP\",\"ttl\":120,\"proxied\":false}"
 
@@ -73,22 +74,22 @@ cat >$HOME/trojan/server.json <<EOL
 }
 EOL
 
-sudo cat >/lib/systemd/system/trojan.service <<-EOF
-[Unit]  
-Description=trojan  
-After=network.target  
-   
-[Service]  
-Type=simple  
+sudo /bin/bash -c 'cat >/lib/systemd/system/trojan.service <<-EOF
+[Unit]
+Description=trojan
+After=network.target
+
+[Service]
+Type=simple
 PIDFile=$HOME/trojan/trojan.pid
-ExecStart=$HOME/trojan -c "$HOME/trojan/server.conf"  
-ExecReload=  
-ExecStop=$HOME/trojan/trojan  
-PrivateTmp=true  
-   
-[Install]  
+ExecStart=$HOME/trojan -c "$HOME/trojan/server.conf"
+ExecReload=
+ExecStop=$HOME/trojan/trojan
+PrivateTmp=true
+
+[Install]
 WantedBy=multi-user.target
-EOF
+EOF'
 
 sudo chmod +x /lib/systemd/system/trojan.service
 sudo systemctl start trojan.service
