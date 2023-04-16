@@ -7,7 +7,7 @@ read -p "Please input SUPABASE_URL: " SUPABASE_URL
 read -p "Please input SUPABASE_SERVICE_ROLE_KEY: " SUPABASE_SERVICE_ROLE_KEY
 
 sudo apt-get update
-sudo apt-get install -y jq
+sudo apt-get install -y jq zip
 
 if ! command -v nginx &>/dev/null; then
     sudo apt-get install -y nginx
@@ -54,9 +54,6 @@ fi
 RANDOM_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c8)
 
 if [ ! -d "/usr/local/trojan" ]; then
-    if ! command -v unzip &>/dev/null; then
-        sudo apt-get install -y unzip
-    fi
     LATEST_RELEASE=$(curl -s "https://api.github.com/repos/p4gefau1t/trojan-go/releases/latest" | jq -r '.tag_name')
     wget https://github.com/p4gefau1t/trojan-go/releases/download/${LATEST_RELEASE}/trojan-go-linux-amd64.zip
     sudo unzip trojan-go-linux-amd64.zip -d /usr/local/trojan
