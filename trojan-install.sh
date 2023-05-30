@@ -102,7 +102,6 @@ METADATA=$(
     cat <<EOL
 {
   "sni": "${DOMAIN}",
-  "udp": true,
   "name": "${SUBDOMAIN}",
   "port": 443,
   "type": "trojan",
