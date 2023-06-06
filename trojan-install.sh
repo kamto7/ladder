@@ -78,7 +78,7 @@ sudo bash -c "cat > /usr/local/trojan/server.json <<EOL
 }
 EOL"
 
-sudo /bin/bash -c 'cat >/lib/systemd/system/trojan.service <<-EOF
+sudo /bin/bash -c 'cat >/etc/systemd/system/trojan.service <<-EOF
 [Unit]
 Description=Trojan
 After=network.target
@@ -94,9 +94,23 @@ RestartSec=5s
 WantedBy=multi-user.target
 EOF'
 
-sudo chmod +x /lib/systemd/system/trojan.service
+sudo /bin/bash -c 'cat >/etc/systemd/system/trojan-restart.timer <<-EOF
+[Unit]
+Description=Restart Trojan service every day
+
+[Timer]
+OnCalendar=daily
+Unit=trojan.service
+
+[Install]
+WantedBy=timers.target
+EOF'
+
 sudo systemctl start trojan.service
 sudo systemctl enable trojan.service
+
+sudo systemctl start trojan-restart.timer
+sudo systemctl enable trojan-restart.timer
 
 METADATA=$(
     cat <<EOL
