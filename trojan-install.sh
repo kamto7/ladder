@@ -94,13 +94,24 @@ RestartSec=5s
 WantedBy=multi-user.target
 EOF'
 
+sudo /bin/bash -c 'cat >/etc/systemd/system/trojan-restart.service <<-EOF
+[Unit]
+Description=Restart Trojan
+
+[Service]
+ExecStart=/bin/systemctl restart trojan
+
+[Install]
+WantedBy=multi-user.target
+EOF'
+
 sudo /bin/bash -c 'cat >/etc/systemd/system/trojan-restart.timer <<-EOF
 [Unit]
 Description=Restart Trojan service every day
 
 [Timer]
 OnCalendar=daily
-Unit=trojan.service
+Unit=trojan-restart.service
 
 [Install]
 WantedBy=timers.target
