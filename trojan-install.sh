@@ -117,6 +117,8 @@ Unit=trojan-restart.service
 WantedBy=timers.target
 EOF'
 
+sudo systemctl daemon-reload
+
 sudo systemctl start trojan.service
 sudo systemctl enable trojan.service
 
