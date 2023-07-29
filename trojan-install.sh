@@ -133,7 +133,8 @@ METADATA=$(
   "port": 443,
   "type": "trojan",
   "server": "${DOMAIN}",
-  "password": "${RANDOM_PASSWORD}"
+  "password": "${RANDOM_PASSWORD}",
+  "skip-cert-verify": true
 }
 EOL
 )
