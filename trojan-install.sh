@@ -128,13 +128,13 @@ sudo systemctl enable trojan-restart.timer
 METADATA=$(
     cat <<EOL
 {
-  "sni": "${DOMAIN}",
   "name": "${SUBDOMAIN}",
   "port": 443,
   "type": "trojan",
   "server": "${DOMAIN}",
   "password": "${RANDOM_PASSWORD}",
-  "skip-cert-verify": true
+  "skip-cert-verify": true,
+  "udp": true
 }
 EOL
 )
